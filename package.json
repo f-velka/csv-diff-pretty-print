@@ -14,10 +14,14 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:csv-diff-pretty-print.compareOpenedTwoFiles.csv",
-    "onCommand:csv-diff-pretty-print.compareOpenedTwoFiles.tsv",
-    "onCommand:csv-diff-pretty-print.compareOpenedTwoFiles.psv",
-    "onCommand:csv-diff-pretty-print.compareOpenedTwoFiles.others"
+    "onCommand:csv-diff-pretty-print.compareCurrentTwoFiles.csv",
+    "onCommand:csv-diff-pretty-print.compareCurrentTwoFiles.tsv",
+    "onCommand:csv-diff-pretty-print.compareCurrentTwoFiles.psv",
+    "onCommand:csv-diff-pretty-print.compareCurrentTwoFiles.others",
+    "onCommand:csv-diff-pretty-print.compareCurrentWith.csv",
+    "onCommand:csv-diff-pretty-print.compareCurrentWith.tsv",
+    "onCommand:csv-diff-pretty-print.compareCurrentWith.psv",
+    "onCommand:csv-diff-pretty-print.compareCurrentWith.others"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -61,20 +65,36 @@
     },
     "commands": [
       {
-        "command": "csv-diff-pretty-print.compareOpenedTwoFiles.csv",
-        "title": "CSV Diff: Compare Opened Two Files (CSV)"
+        "command": "csv-diff-pretty-print.compareCurrentTwoFiles.csv",
+        "title": "CSV Diff: Compare Current Two Files (CSV)"
       },
       {
-        "command": "csv-diff-pretty-print.compareOpenedTwoFiles.tsv",
-        "title": "CSV Diff: Compare Opened Two Files (TSV)"
+        "command": "csv-diff-pretty-print.compareCurrentTwoFiles.tsv",
+        "title": "CSV Diff: Compare Current Two Files (TSV)"
       },
       {
-        "command": "csv-diff-pretty-print.compareOpenedTwoFiles.psv",
-        "title": "CSV Diff: Compare Opened Two Files (PSV)"
+        "command": "csv-diff-pretty-print.compareCurrentTwoFiles.psv",
+        "title": "CSV Diff: Compare Current Two Files (PSV)"
       },
       {
-        "command": "csv-diff-pretty-print.compareOpenedTwoFiles.others",
-        "title": "CSV Diff: Compare Opened Two Files (Other Formats)"
+        "command": "csv-diff-pretty-print.compareCurrentTwoFiles.others",
+        "title": "CSV Diff: Compare Current Two Files (Other Formats)"
+      },
+      {
+        "command": "csv-diff-pretty-print.compareCurrentWith.csv",
+        "title": "CSV Diff: Compare Current With... (CSV)"
+      },
+      {
+        "command": "csv-diff-pretty-print.compareCurrentWith.tsv",
+        "title": "CSV Diff: Compare Current With... (TSV)"
+      },
+      {
+        "command": "csv-diff-pretty-print.compareCurrentWith.psv",
+        "title": "CSV Diff: Compare Current With... (PSV)"
+      },
+      {
+        "command": "csv-diff-pretty-print.compareCurrentWith.others",
+        "title": "CSV Diff: Compare Current With... (Other Formats)"
       }
     ]
   },

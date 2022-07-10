@@ -74,32 +74,51 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// register diff commands
 	context.subscriptions.push(
-		vscode.commands.registerCommand('csv-diff-pretty-print.compareOpenedTwoFiles.csv', async () => {
-			await executeDiffCommand(diffProvider, ',');
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareCurrentTwoFiles.csv', async () => {
+			await executeDiffCommandFromEditors(diffProvider, ',');
 		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('csv-diff-pretty-print.compareOpenedTwoFiles.tsv', async () => {
-			await executeDiffCommand(diffProvider, '\t');
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareCurrentTwoFiles.tsv', async () => {
+			await executeDiffCommandFromEditors(diffProvider, '\t');
 		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('csv-diff-pretty-print.compareOpenedTwoFiles.psv', async () => {
-			await executeDiffCommand(diffProvider, '|');
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareCurrentTwoFiles.psv', async () => {
+			await executeDiffCommandFromEditors(diffProvider, '|');
 		})
 	);
 	context.subscriptions.push(
-		vscode.commands.registerCommand('csv-diff-pretty-print.compareOpenedTwoFiles.others', async () => {
-			const result = await vscode.window.showInputBox({
-				placeHolder: 'Input the delimiter to parse files...',
-				validateInput: input => {
-					if (!input) {
-						return "Please input non-empty string value.";
-					}
-					return null;
-				}
-			});
-			await executeDiffCommand(diffProvider, result!);
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareCurrentTwoFiles.others', async () => {
+			const input = await showDelimiterInputDialog();
+			if (!input) {
+				return;
+			}
+			await executeDiffCommandFromEditors(diffProvider, input);
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareCurrentWith.csv', async () => {
+			executeDiffCommandWithOpen(diffProvider, ',');
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareCurrentWith.tsv', async () => {
+			executeDiffCommandWithOpen(diffProvider, '\t');
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareCurrentWith.psv', async () => {
+			executeDiffCommandWithOpen(diffProvider, '|');
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareCurrentWith.others', async () => {
+			const input = await showDelimiterInputDialog();
+			if (!input) {
+				return;
+			}
+			executeDiffCommandWithOpen(diffProvider, input);
 		})
 	);
 }
@@ -107,7 +126,19 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {
 }
 
-async function executeDiffCommand(provider: PrettyDiffProvider, delimiter: string) {
+async function showDelimiterInputDialog(): Promise<string | undefined> {
+	return vscode.window.showInputBox({
+		placeHolder: 'Input the delimiter to parse files...',
+		validateInput: input => {
+			if (!input) {
+				return "Please input non-empty string value.";
+			}
+			return null;
+		}
+	});
+}
+
+async function executeDiffCommandFromEditors(provider: PrettyDiffProvider, delimiter: string) {
 	const editors = vscode.window.visibleTextEditors.filter(e => e.document.uri.scheme === 'file');
 	if (editors.length <= 1) {
 		vscode.window.showErrorMessage("No documents to compare.");
@@ -116,9 +147,43 @@ async function executeDiffCommand(provider: PrettyDiffProvider, delimiter: strin
 
 	// select first two editors
 	const [editorA, editorB] = [...editors];
+
+	executeDiffCommands(
+		provider, delimiter,
+		[editorA.document.fileName, editorB.document.fileName],
+		[editorA.document.getText(), editorB.document.getText()]);
+}
+
+async function executeDiffCommandWithOpen(provider: PrettyDiffProvider, delimiter: string) {
+	const currentEditor = vscode.window.activeTextEditor;
+	if (!currentEditor || currentEditor.document.uri.scheme !== 'file') {
+		vscode.window.showErrorMessage("No documents to compare.");
+		return;
+	}
+
+	// open existing file to compare
+	const onotherUri = await vscode.window.showOpenDialog({
+		title: `Compare ${currentEditor.document.fileName} with...`,
+		canSelectFiles: true,
+		canSelectFolders: false,
+		canSelectMany: false,
+	});
+	if (!onotherUri || onotherUri.length === 0) {
+		return;
+	}
+	const anotherDoc = await vscode.workspace.openTextDocument(onotherUri[0]);
+
+	executeDiffCommands(
+		provider, delimiter,
+		[currentEditor.document.fileName, anotherDoc.fileName],
+		[currentEditor.document.getText(), anotherDoc.getText()]);
+}
+
+async function executeDiffCommands(provider: PrettyDiffProvider, delimiter: string,
+	[fileNameA, fileNameB]: string[], [textA, textB]: string[]) {
 	const options = getOptions();
-	const fileA = await parse(editorA.document.fileName, editorA.document.getText(), delimiter, options);
-	const fileB = await parse(editorB.document.fileName, editorB.document.getText(), delimiter, options);
+	const fileA = await parse(fileNameA, textA, delimiter, options);
+	const fileB = await parse(fileNameB, textB, delimiter, options);
 	const [uriA, uriB] = provider.registerFiles(fileA, fileB, options, getPrinter(options));
 
 	const title = `${path.basename(fileA.fileName)}${CSV_DIFF_EXT} ⇔ ${path.basename(fileB.fileName)}${CSV_DIFF_EXT}`;
