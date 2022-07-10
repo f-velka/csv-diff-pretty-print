@@ -1,6 +1,6 @@
 const formatType = [
 	'Grid',
-	'Compact',
+	'Simple',
 ] as const;
 export type FormatType = typeof formatType[number];
 

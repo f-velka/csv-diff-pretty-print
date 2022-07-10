@@ -57,7 +57,7 @@ class GridPrinter implements PrettyPrinter {
 	}
 }
 
-class CompactPrinter implements PrettyPrinter {
+class SimplePrinter implements PrettyPrinter {
 	print(file: File, maxWidths: number[], options: Options, writer: TextWriter): void {
 		for (const preceding of file.precedings) {
 			writer.writeLine(preceding);
@@ -67,17 +67,17 @@ class CompactPrinter implements PrettyPrinter {
 			const headerRow = options.headerLocation === 'FirstRow' ?
 				file.firstRow : file.firstRow.map((_, i) => String(i));
 			const cells = formatCells(headerRow, maxWidths);
-			writer.writeLine(cells.join(' '));
+			writer.writeLine(` ${cells.join('   ')}`);
 			// blank cells are literally blank in this mode.
 			// so we can cut them off.
-			writer.writeLine(maxWidths.slice(0, file.columnCount).map(w => '-'.repeat(w)).join(' '));
+			writer.writeLine(maxWidths.slice(0, file.columnCount).map(w => '-'.repeat(w + 2)).join(' '));
 		}
 
 		let rowIndex = options.headerLocation === 'FirstRow' ? 1 : 0;
 		for (; rowIndex < file.rowCount; rowIndex++) {
 			const row = file.records[rowIndex];
 			const cells = formatCells(row, maxWidths);
-			writer.writeLine(cells.join(' ').trimEnd());
+			writer.writeLine(` ${cells.join('   ').trimEnd()}`);
 			if (options.insertLineBetweenRows) {
 				writer.writeLine();
 			}
@@ -89,7 +89,7 @@ export function getPrinter(options: Options): PrettyPrinter {
 	switch (options.formatType) {
 		case 'Grid':
 			return new GridPrinter();
-		case 'Compact':
-			return new CompactPrinter();
+		case 'Simple':
+			return new SimplePrinter();
 	}
 }

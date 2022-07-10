@@ -32,12 +32,12 @@
           "type": "string",
           "enum": [
             "Grid",
-            "Compact"
+            "Simple"
           ],
           "default": "Grid",
           "enumDescriptions": [
             "Format files with grids.",
-            "Format files with  only spaces."
+            "Format files with spaces."
           ],
           "description": "Controls the pretty-print format type."
         },
