@@ -1,16 +1,20 @@
-import { CsvError, Options as ParseOptions, parse } from 'csv-parse';
+import { CsvError, parse as csv_parse, Options as ParseOptions } from 'csv-parse';
 import { File as File } from './file';
 import { Options } from './options';
 
 const REG_NEW_LINE = /\n|\r\n|\r/;
 
-export async function parseCsv(filename: string, input: string, options: Options): Promise<File> {
+export async function parse(filename: string, input: string, delimiter: string, options: Options): Promise<File> {
+	const parseOptions: ParseOptions = {
+		delimiter: delimiter,
+	};
+
 	let precedings = [];
 	let remains = input;
 	while (remains) {
 		try {
 			const records: string[][] = [];
-			const parser = parse(remains);
+			const parser = csv_parse(remains, parseOptions);
 			for await (const record of parser) {
 				records.push(record);
 			}

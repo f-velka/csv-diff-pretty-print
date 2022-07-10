@@ -14,7 +14,10 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:csv-diff-pretty-print.diffOpenedTwoFiles"
+    "onCommand:csv-diff-pretty-print.compareOpenedTwoFiles.csv",
+    "onCommand:csv-diff-pretty-print.compareOpenedTwoFiles.tsv",
+    "onCommand:csv-diff-pretty-print.compareOpenedTwoFiles.psv",
+    "onCommand:csv-diff-pretty-print.compareOpenedTwoFiles.others"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -58,8 +61,20 @@
     },
     "commands": [
       {
-        "command": "csv-diff-pretty-print.diffOpenedTwoFiles",
-        "title": "CSV Diff: Diff Opened Two Files"
+        "command": "csv-diff-pretty-print.compareOpenedTwoFiles.csv",
+        "title": "CSV Diff: Compare Opened Two Files (CSV)"
+      },
+      {
+        "command": "csv-diff-pretty-print.compareOpenedTwoFiles.tsv",
+        "title": "CSV Diff: Compare Opened Two Files (TSV)"
+      },
+      {
+        "command": "csv-diff-pretty-print.compareOpenedTwoFiles.psv",
+        "title": "CSV Diff: Compare Opened Two Files (PSV)"
+      },
+      {
+        "command": "csv-diff-pretty-print.compareOpenedTwoFiles.others",
+        "title": "CSV Diff: Compare Opened Two Files (Other Formats)"
       }
     ]
   },

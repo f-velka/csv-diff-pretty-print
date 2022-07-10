@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { File } from './file';
 import { calcValueWidth } from './utils';
-import { parseCsv } from './parser';
+import { parse } from './parser';
 import { getPrinter, PrettyPrinter } from './printer';
 import { FormatType, HeaderLocation, Options } from './options';
 import { getTextWriter } from './textWriter';
@@ -67,6 +67,64 @@ class PrettyDiffProvider implements vscode.TextDocumentContentProvider {
 	}
 };
 
+export function activate(context: vscode.ExtensionContext) {
+	// register the custom provider
+	const diffProvider = new PrettyDiffProvider();
+	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(DIFF_SCHEME, diffProvider));
+
+	// register diff commands
+	context.subscriptions.push(
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareOpenedTwoFiles.csv', async () => {
+			await executeDiffCommand(diffProvider, ',');
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareOpenedTwoFiles.tsv', async () => {
+			await executeDiffCommand(diffProvider, '\t');
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareOpenedTwoFiles.psv', async () => {
+			await executeDiffCommand(diffProvider, '|');
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('csv-diff-pretty-print.compareOpenedTwoFiles.others', async () => {
+			const result = await vscode.window.showInputBox({
+				placeHolder: 'Input the delimiter to parse files...',
+				validateInput: input => {
+					if (!input) {
+						return "Please input non-empty string value.";
+					}
+					return null;
+				}
+			});
+			await executeDiffCommand(diffProvider, result!);
+		})
+	);
+}
+
+export function deactivate() {
+}
+
+async function executeDiffCommand(provider: PrettyDiffProvider, delimiter: string) {
+	const editors = vscode.window.visibleTextEditors.filter(e => e.document.uri.scheme === 'file');
+	if (editors.length <= 1) {
+		vscode.window.showErrorMessage("No documents to compare.");
+		return;
+	}
+
+	// select first two editors
+	const [editorA, editorB] = [...editors];
+	const options = getOptions();
+	const fileA = await parse(editorA.document.fileName, editorA.document.getText(), delimiter, options);
+	const fileB = await parse(editorB.document.fileName, editorB.document.getText(), delimiter, options);
+	const [uriA, uriB] = provider.registerFiles(fileA, fileB, options, getPrinter(options));
+
+	const title = `${path.basename(fileA.fileName)}${CSV_DIFF_EXT} ⇔ ${path.basename(fileB.fileName)}${CSV_DIFF_EXT}`;
+	vscode.commands.executeCommand('vscode.diff', uriA, uriB, title);
+}
+
 function getOptions(): Options {
 	const conf = vscode.workspace.getConfiguration();
 	const getConf = <T> (path: string, defaultValue: T, invalidValues?: T[]) => {
@@ -83,34 +141,4 @@ function getOptions(): Options {
 		delimiter = getConf('parse.delimiter', ',', ['']);
 		headerLocation = getConf('parse.headerLocation', 'FirstRow' as HeaderLocation);
 	};
-}
-
-export function activate(context: vscode.ExtensionContext) {
-	// register the custom provider
-	const diffProvider = new PrettyDiffProvider();
-	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(DIFF_SCHEME, diffProvider));
-
-	// register diff command
-	let disposable = vscode.commands.registerCommand('csv-diff-pretty-print.diffOpenedTwoFiles', async () => {
-		const editors = vscode.window.visibleTextEditors.filter(e => e.document.uri.scheme === 'file');
-		if (editors.length <= 1) {
-			vscode.window.showErrorMessage("No documents to compare.");
-			return;
-		}
-
-		// select first two editors
-		const [editorA, editorB] = [...editors];
-		const options = getOptions();
-		const fileA = await parseCsv(editorA.document.fileName, editorA.document.getText(), options);
-		const fileB = await parseCsv(editorB.document.fileName, editorB.document.getText(), options);
-		const [uriA, uriB] = diffProvider.registerFiles(fileA, fileB, options, getPrinter(options));
-
-		const title = `${path.basename(fileA.fileName)}${CSV_DIFF_EXT} ⇔ ${path.basename(fileB.fileName)}${CSV_DIFF_EXT}`;
-		vscode.commands.executeCommand('vscode.diff', uriA, uriB, title);
-	});
-
-	context.subscriptions.push(disposable);
-}
-
-export function deactivate() {
 }
