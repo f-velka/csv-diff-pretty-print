@@ -5,6 +5,9 @@ import { PrettyPrinter } from './printer';
 import { Options } from './options';
 import { getTextWriter } from './textWriter';
 
+/**
+ * A text document content provider that provides pretty-printed diff results.
+ */
 export class PrettyDiffProvider implements vscode.TextDocumentContentProvider {
 	// constants
 	static readonly diffScheme = 'csv-pretty-diff';
@@ -21,6 +24,14 @@ export class PrettyDiffProvider implements vscode.TextDocumentContentProvider {
 		return this._texts.get(uri.path) ?? '';
 	}
 
+	/**
+	 * Register source files to the provider.
+	 * @param fileA First input file.
+	 * @param fileB Second input file.
+	 * @param options Options.
+	 * @param printer Pretty-printer.
+	 * @returns Uris of registered documents.
+	 */
 	registerFiles(fileA: File, fileB: File, options: Options, printer: PrettyPrinter): [vscode.Uri, vscode.Uri] {
 		const mergedWidths = this.mergeMaxWidths(fileA, fileB);
 		const uriA = this.registerFile(fileA, mergedWidths, options, printer);

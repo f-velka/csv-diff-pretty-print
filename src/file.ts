@@ -1,3 +1,6 @@
+/**
+ * Source file.
+ */
 export class File {
 	private _fileName: string;
 	private _precedings: string[] = [];

@@ -1,6 +1,16 @@
 // cache
 const valueWidthCache = new Map<string, number>();
 
+/**
+ * Calculate value's width.
+ *
+ * XXX:
+ * Rendered character widths depend on the fonts users are using,
+ * so this function would not work well in some situations.
+ * But I have no idea how to deal with it.
+ * @param value Input text value.
+ * @returns Calculated text width.
+ */
 export function calcValueWidth(value: string): number {
 	const cached = valueWidthCache.get(value);
 	if (cached !== undefined) {

@@ -4,6 +4,14 @@ import { Options } from './options';
 
 const REG_NEW_LINE = /\n|\r\n|\r/;
 
+/**
+ * Parse an input and create a {@link File} instance.
+ * @param filename Input file name.
+ * @param input Input file text.
+ * @param delimiter Delimiter that will be used by a parser.
+ * @param options Options.
+ * @returns Parsed file.
+ */
 export async function parse(filename: string, input: string, delimiter: string, options: Options): Promise<File> {
 	const parseOptions: ParseOptions = {
 		delimiter: delimiter,

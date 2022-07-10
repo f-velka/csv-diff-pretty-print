@@ -1,3 +1,6 @@
+/**
+ * Text writer that write texts to buffers or streams.
+ */
 export interface TextWriter {
 	write(text: string): void;
 	writeLine(line?: string): void;
@@ -21,14 +24,12 @@ class TextWriterImpl implements TextWriter {
 	toString(): string {
 		return this._text;
 	}
-
-	private check(succeeded: boolean) {
-		if (!succeeded) {
-			throw new Error('failed to write texts.');
-		}
-	}
 }
 
+/**
+ * Get a text writer instance.
+ * @returns Text writer instance.
+ */
 export function getTextWriter(): TextWriter {
 	return new TextWriterImpl();
 }

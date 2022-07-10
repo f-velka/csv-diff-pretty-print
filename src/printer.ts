@@ -3,7 +3,17 @@ import { Options } from './options';
 import { TextWriter } from './textWriter';
 import { calcValueWidth } from './utils';
 
+/**
+ * Printer that outputs pretty-printed file input.
+ */
 export interface PrettyPrinter {
+	/**
+	 * Pretty-print input file.
+	 * @param file Input file to print.
+	 * @param maxWidths Merged max column widths (largest values in all input files).
+	 * @param options Options.
+	 * @param writer Output text writer.
+	 */
 	print(file: File, maxWidths: number[], options: Options, writer: TextWriter): void;
 }
 
@@ -149,6 +159,11 @@ class SimplePrinter extends PrinterBase {
 	}
 }
 
+/**
+ * Get a suitable pretty-printer instance.
+ * @param options Options.
+ * @returns Pretty-printer.
+ */
 export function getPrinter(options: Options): PrettyPrinter {
 	switch (options.formatType) {
 		case 'Grid':

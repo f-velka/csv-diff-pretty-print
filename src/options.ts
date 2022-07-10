@@ -11,6 +11,9 @@ const headerLocation = [
 ] as const;
 export type HeaderLocation = typeof headerLocation[number];
 
+/**
+ * Extension options.
+ */
 export interface Options {
 	readonly formatType: FormatType;
 	readonly insertLineBetweenRows: boolean;
