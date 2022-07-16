@@ -1,8 +1,8 @@
 {
   "name": "csv-diff-pretty-print",
   "displayName": "CSV Diff Pretty Print",
-  "description": "pretty-print csv diff",
-  "version": "0.0.1",
+  "description": "Format and compare CSV/TSV/PSV files.",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.68.0"
   },
@@ -10,6 +10,7 @@
   "repository": {
     "url": "https://github.com/f-velka/csv-diff-pretty-print"
   },
+  "icon": "images/icon.png",
   "categories": [
     "Other"
   ],

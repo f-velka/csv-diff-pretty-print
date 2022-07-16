@@ -1,70 +1,41 @@
-# csv-diff-pretty-print README
-
-WIP
+# CSV Diff Pretty Print Extension
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Format CSV/TSV/PSV files and compare them using vscode diff.
 
-For example if there is an image subfolder under your extension project workspace:
+### Usage
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Open the files that you want to compare. Use vscode diff tool (e.g. `code -d`) or just line up two files by splitting the editor.
+2. Execute `CSV Diff: Compare Current Two Files`.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+![usage](https://raw.githubusercontent.com/f-velka/csv-diff-pretty-print/main/images/extension.gif)
 
-## Requirements
+You can also compare an single active file with another file by `CSV Diff: Compare Current With...` command.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Extension Commands
+
+If you select `(Other Formats)`, you can specify an onother delimiter.
+
+* `CSV Diff: Compare Current Two Files (CSV)`
+* `CSV Diff: Compare Current Two Files (TSV)`
+* `CSV Diff: Compare Current Two Files (PSV)`
+* `CSV Diff: Compare Current Two Files (Other Formats)`
+  * Compare active two files. If three or more editors are open, first two editors will be selected.
+* `CSV Diff: Compare Current With... (CSV)`
+* `CSV Diff: Compare Current With... (TSV)`
+* `CSV Diff: Compare Current With... (PSV)`
+* `CSV Diff: Compare Current With... (Other Formats)`
+  * Compare active file with selected file (a file dialog will open).
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+* `csvDiffPrettyPrint.format.formatType`: Controls the pretty-print format type.
+* `csvDiffPrettyPrint.format.insertLineBetweenRows`: Inserts a Line between each rows or not.
+* `csvDiffPrettyPrint.parse.headerLocation`: Specifies the header location.
+* `csvDiffPrettyPrint.view.updateViewWhenTextChanges`: Update the view every time the text changes or not. If this value is set to false, the view is updated only when the text is saved.
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+## Icon
+[いらすとや](https://www.irasutoya.com/)
