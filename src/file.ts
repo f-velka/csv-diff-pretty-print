@@ -3,11 +3,16 @@
  */
 export class File {
 	private _fileName: string;
-	private _precedings: string[] = [];
-	private _records: string[][] = [];
+	private _delimiter: string;
+	private _precedings: string[];
+	private _records: string[][];
 
 	get fileName(): string {
 		return this._fileName;
+	}
+
+	get delimiter(): string {
+		return this._delimiter;
 	}
 
 	get precedings(): string[] {
@@ -30,8 +35,9 @@ export class File {
 		return this._records.length;
 	}
 
-	constructor(fileName: string, records: string[][], precedings: string[]) {
+	constructor(fileName: string, delimiter: string, records: string[][], precedings: string[]) {
 		this._fileName = fileName;
+		this._delimiter = delimiter;
 		this._records = records;
 		this._precedings = precedings;
 	}

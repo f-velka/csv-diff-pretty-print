@@ -1,3 +1,5 @@
+import * as randomstring from 'randomstring';
+
 // cache
 const valueWidthCache = new Map<string, number>();
 
@@ -31,4 +33,12 @@ export function calcValueWidth(value: string): number {
 
 	valueWidthCache.set(value, width);
 	return width;
+}
+
+/**
+ * Generate 8 length string id.
+ * @returns id
+ */
+export function generateId(): string {
+	return randomstring.generate(8);
 }
