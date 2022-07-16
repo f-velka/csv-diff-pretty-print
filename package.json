@@ -60,6 +60,11 @@
             "Append indexed labels to files."
           ],
           "description": "Specifies the header location."
+        },
+        "csvDiffPrettyPrint.view.updateViewWhenTextChanges": {
+          "type": "boolean",
+          "default": true,
+          "description": "Update the view every time the text changes or not. If this value is set to false, the view is updated only when the text is saved."
         }
       }
     },

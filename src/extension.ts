@@ -45,12 +45,29 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 			executeDiffCommandWithOpen(diffProvider, input);
 		}),
-
-		// events
-		vscode.workspace.onDidChangeTextDocument(async e => await diffProvider.updateDocument(e.document)),
-		vscode.workspace.onDidSaveTextDocument(async e => await diffProvider.updateDocument(e)),
-		vscode.workspace.onDidCloseTextDocument(async e => diffProvider.removeDocument(e)),
 	);
+
+
+	// subscribe events
+	vscode.workspace.onDidSaveTextDocument(async e => await diffProvider.updateDocument(e));
+	vscode.workspace.onDidCloseTextDocument(async e => diffProvider.removeDocument(e));
+	let updateViewWhenTextChangesDisposable: vscode.Disposable | null = null;
+	if (getOptions().updateViewWhenTextChanges) {
+		context.subscriptions.push(
+			updateViewWhenTextChangesDisposable = vscode.workspace.onDidChangeTextDocument(
+				async e => await diffProvider.updateDocument(e.document)),
+		);
+	}
+	// subscribe/unsubscribe dynamically
+	vscode.workspace.onDidChangeConfiguration(_ => {
+		if (getOptions().updateViewWhenTextChanges && !updateViewWhenTextChangesDisposable) {
+			updateViewWhenTextChangesDisposable = vscode.workspace.onDidChangeTextDocument(
+				async e => await diffProvider.updateDocument(e.document));
+		} else {
+			updateViewWhenTextChangesDisposable?.dispose();
+			updateViewWhenTextChangesDisposable = null;
+		}
+	});
 }
 
 export function deactivate() {
@@ -125,5 +142,6 @@ function getOptions(): Options {
 		insertLineBetweenRows = getConf('format.insertLineBetweenRows', true);
 		delimiter = getConf('parse.delimiter', ',', ['']);
 		headerLocation = getConf('parse.headerLocation', 'FirstRow' as HeaderLocation);
+		updateViewWhenTextChanges = getConf('view.updateViewWhenTextChanges', true);
 	};
 }

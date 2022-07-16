@@ -18,4 +18,5 @@ export interface Options {
 	readonly formatType: FormatType;
 	readonly insertLineBetweenRows: boolean;
 	readonly headerLocation: HeaderLocation;
+	readonly updateViewWhenTextChanges: boolean;
 }
