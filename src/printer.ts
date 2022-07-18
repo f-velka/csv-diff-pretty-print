@@ -48,16 +48,16 @@ abstract class PrinterBase implements PrettyPrinter {
 		}
 
 		this.printHeader(file, maxWidths, writer);
-		// writer.writeLine(hGridLine);
+
 		if (this._headerLocation === 'FirstRow' || this._headerLocation === 'Implicit') {
 			const headerRow = this._headerLocation === 'FirstRow' ?
-				file.firstRow : file.firstRow.map((_, i) => String(i));
-			this.printHeaderRow(file, maxWidths, writer, headerRow);
+				file.firstRow : maxWidths.map((_, i) => String(i + 1));
+			this.printHeaderRow(headerRow, file, maxWidths, writer);
 		}
 
 		let rowIndex = this._headerLocation === 'FirstRow' ? 1 : 0;
 		for (; rowIndex < file.rowCount; rowIndex++) {
-			this.printDataRow(file, maxWidths, writer, rowIndex);
+			this.printDataRow(rowIndex, file.records[rowIndex], file, maxWidths, writer);
 		}
 
 		this.printFooter(file, maxWidths, writer);
@@ -65,8 +65,8 @@ abstract class PrinterBase implements PrettyPrinter {
 
 	protected abstract initialize(file: File, maxWidths: number[], writer: TextWriter): void;
 	protected abstract printHeader(file: File, maxWidths: number[], writer: TextWriter): void;
-	protected abstract printHeaderRow(file: File, maxWidths: number[], writer: TextWriter, headerRow: string[]): void;
-	protected abstract printDataRow(file: File, maxWidths: number[], writer: TextWriter, rowIndex: number): void;
+	protected abstract printHeaderRow(headerRow: string[], file: File, maxWidths: number[], writer: TextWriter): void;
+	protected abstract printDataRow(rowIndex: number, row: string[], file: File, maxWidths: number[], writer: TextWriter): void;
 	protected abstract printFooter(file: File, maxWidths: number[], writer: TextWriter): void;
 
 	protected formatCell(value: string, width: number, rowidth: number): string {
@@ -89,7 +89,9 @@ abstract class PrinterBase implements PrettyPrinter {
  * +----+----+----+----+
  */
 class GridPrinter extends PrinterBase {
+	// +----+----+----+----+ <- this
 	private _horizontalGridLine: string = '';
+	// cells that have no data
 	private _blankCells: string[] = [];
 
 	protected initialize(file: File, maxWidths: number[], writer: TextWriter): void {
@@ -101,14 +103,23 @@ class GridPrinter extends PrinterBase {
 		writer.writeLine(this._horizontalGridLine);
 	}
 
-	protected printHeaderRow(file: File, maxWidths: number[], writer: TextWriter, headerRow: string[]): void {
-		const cells = this.formatCells(headerRow, maxWidths).concat(this._blankCells);
+	protected printHeaderRow(headerRow: string[], file: File, maxWidths: number[], writer: TextWriter): void {
+		const cells = (() => {
+			switch (this._headerLocation) {
+				case 'FirstRow':
+					return this.formatCells(headerRow, maxWidths).concat(this._blankCells);
+				case 'Implicit':
+					return this.formatCells(headerRow, maxWidths);
+				default:
+					throw new Error('invalid operation');
+			}
+		})();
+
 		writer.writeLine(`| ${cells.join(' | ')} |`);
 		writer.writeLine(this._horizontalGridLine);
 	}
 
-	protected printDataRow(file: File, maxWidths: number[], writer: TextWriter, rowIndex: number): void {
-		const row = file.records[rowIndex];
+	protected printDataRow(rowIndex: number, row: string[], file: File, maxWidths: number[], writer: TextWriter): void {
 		const cells = this.formatCells(row, maxWidths).concat(this._blankCells);
 		writer.writeLine(`| ${cells.join(' | ')} |`);
 		if (this._insertLineBetweenRows) {
@@ -146,19 +157,24 @@ class SimplePrinter extends PrinterBase {
 	protected printHeader(file: File, maxWidths: number[], writer: TextWriter): void {
 	}
 
-	protected printHeaderRow(file: File, maxWidths: number[], writer: TextWriter, headerRow: string[]): void {
-		const cells = this.formatCells(headerRow, maxWidths);
+	protected printHeaderRow(headerRow: string[], file: File, maxWidths: number[], writer: TextWriter): void {
+		// Blank cells are literally blank in this mode.
+		// So we need to cut them off.
+		//
+		// If the format type is "Implicit" and the column count of the compared file is bigger than this file's,
+		// the header row contains extra columns that need to be removed.
+		const slicedHeaderRow = headerRow.slice(0, file.columnCount);
+		const slicedMaxWidth = maxWidths.slice(0, file.columnCount);
+
+		const cells = this.formatCells(slicedHeaderRow, maxWidths);
 		writer.writeLine(` ${cells.join('   ').trimEnd()}`);
-		// blank cells are literally blank in this mode.
-		// so we can cut them off.
-		writer.writeLine(maxWidths.slice(0, file.columnCount).map(w => '-'.repeat(w + 2)).join(' '));
+		writer.writeLine(slicedMaxWidth.map(w => '-'.repeat(w + 2)).join(' '));
 	}
 
-	protected printDataRow(file: File, maxWidths: number[], writer: TextWriter, rowIndex: number): void {
-		const row = file.records[rowIndex];
+	protected printDataRow(rowIndex: number, row: string[], file: File, maxWidths: number[], writer: TextWriter): void {
 		const cells = this.formatCells(row, maxWidths);
 		writer.writeLine(` ${cells.join('   ').trimEnd()}`);
-		if (this._insertLineBetweenRows) {
+		if (this._insertLineBetweenRows && rowIndex !== file.rowCount -1) {
 			writer.writeLine();
 		}
 	}
@@ -178,5 +194,7 @@ export function getPrinter(options: Options): PrettyPrinter {
 			return new GridPrinter(options);
 		case 'Simple':
 			return new SimplePrinter(options);
+		default:
+			throw new Error('invalid operation');
 	}
 }
