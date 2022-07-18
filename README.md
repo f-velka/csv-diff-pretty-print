@@ -36,6 +36,3 @@ This extension contributes the following settings:
 * `csvDiffPrettyPrint.format.insertLineBetweenRows`: Inserts a Line between each rows or not.
 * `csvDiffPrettyPrint.parse.headerLocation`: Specifies the header location.
 * `csvDiffPrettyPrint.view.updateViewWhenTextChanges`: Update the view every time the text changes or not. If this value is set to false, the view is updated only when the text is saved.
-
-## Icon
-[いらすとや](https://www.irasutoya.com/)
