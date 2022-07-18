@@ -1,10 +1,48 @@
 import * as randomstring from 'randomstring';
+import { File } from './file';
 
 // cache
 const valueWidthCache = new Map<string, number>();
 
 /**
- * Calculate value's width.
+ * Calculate the max value widths of each rows in each files and merge them.
+ * @param fileA First input.
+ * @param fileB Second input.
+ * @returns Calculated value widths.
+ */
+export function calcCommonMaxValueWidths(fileA: File, fileB: File): number[] {
+	const a = calcMaxValueWidths(fileA);
+	const b = calcMaxValueWidths(fileB);
+	const [longer, shorter] = a.length > b.length ? [a, b] : [b, a];
+	return longer.map((w, i) => {
+		if (i >= shorter.length) {
+			return w;
+		}
+		return w > shorter[i] ? w : shorter[i];
+	});
+}
+
+/**
+ * Calculate the max value widths of each rows in a file.
+ * @param file Input.
+ * @returns Calculated value widths.
+ */
+export function calcMaxValueWidths(file: File): number[] {
+	const maxWidths = new Array<number>(file.columnCount).fill(0);
+	for (const record of file.records) {
+		for (const [index, value] of record.entries()) {
+			const valueWidth = calcValueWidth(value);
+			if (valueWidth > maxWidths[index]) {
+				maxWidths[index] = valueWidth;
+			}
+		}
+	}
+
+	return maxWidths;
+}
+
+/**
+ * Calculate value width.
  *
  * XXX:
  * Rendered character widths depend on the fonts users are using,

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { File } from './file';
-import { calcValueWidth, generateId } from './util';
+import { calcCommonMaxValueWidths, generateId } from './util';
 import { getPrinter, PrettyPrinter } from './printer';
 import { Options } from './options';
 import { getTextWriter } from './textWriter';
@@ -70,7 +70,7 @@ class DiffContext {
 	}
 
 	private updateDocumentsFromFiles(fileA: File, fileB: File) {
-		const maxWidths = this.calcMaxWidths(fileA, fileB);
+		const maxWidths = calcCommonMaxValueWidths(fileA, fileB);
 		this._firstDocument = this.createPrettyPrintedDocument(fileA, maxWidths);
 		this._secondDocument = this.createPrettyPrintedDocument(fileB, maxWidths);
 	}
@@ -81,32 +81,6 @@ class DiffContext {
 		const uri = vscode.Uri.parse(`${PrettyPrintProvider.diffScheme}: ${file.fileName}.${this._diffId}`);
 
 		return new PrettyPrintedDocument(uri, file, writer.toString());
-	}
-
-	private calcMaxWidths(fileA: File, fileB: File): number[] {
-		const a = this.calcMaxValueWidths(fileA);
-		const b = this.calcMaxValueWidths(fileB);
-		const [longer, shorter] = a.length > b.length ? [a, b] : [b, a];
-		return longer.map((w, i) => {
-			if (i >= shorter.length) {
-				return w;
-			}
-			return w > shorter[i] ? w : shorter[i];
-		});
-	}
-
-	private calcMaxValueWidths(file: File): number[] {
-		const maxWidths = new Array<number>(file.columnCount).fill(0);
-		for (const record of file.records) {
-			for (const [index, value] of record.entries()) {
-				const valueWidth = calcValueWidth(value);
-				if (valueWidth > maxWidths[index]) {
-					maxWidths[index] = valueWidth;
-				}
-			}
-		}
-
-		return maxWidths;
 	}
 }
 
