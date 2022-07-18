@@ -86,7 +86,17 @@ async function showDelimiterInputDialog(): Promise<string | undefined> {
 }
 
 async function executeDiffCommandFromEditors(provider: PrettyPrintProvider, delimiter: string) {
-	const editors = vscode.window.visibleTextEditors.filter(e => e.document.uri.scheme === 'file');
+	const seenPaths = new Set<string>();
+	const editors = vscode.window.visibleTextEditors.reduce((acc, cur) => {
+		// remove duplicated paths
+		if (cur.document.uri.scheme !== 'file' || seenPaths.has(cur.document.uri.path)) {
+			return acc;
+		}
+		acc.push(cur);
+		seenPaths.add(cur.document.uri.path);
+		return acc;
+	}, new Array<vscode.TextEditor>());
+
 	if (editors.length <= 1) {
 		vscode.window.showErrorMessage("No documents to compare.");
 		return;
